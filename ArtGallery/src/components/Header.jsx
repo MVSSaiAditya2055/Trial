@@ -1,9 +1,22 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Header() {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  // read session user
+  useEffect(() => {
+    const raw = sessionStorage.getItem("loggedInUser");
+    if (raw) {
+      try {
+        setUser(JSON.parse(raw));
+      } catch (e) {
+        setUser(null);
+      }
+    }
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -29,8 +42,15 @@ export default function Header() {
       </div>
 
       <div className="header-actions">
-        <Link to="/login">Login</Link>
-        <Link to="/signup">Signup</Link>
+        <Link to="/cart">Cart</Link>
+        {!user && (
+          <>
+            <Link to="/login">Login</Link>
+            <Link to="/signup">Signup</Link>
+          </>
+        )}
+        {user && user.role === "admin" && <Link to="/admin-dashboard">Admin</Link>}
+        {user && user.role === "artist" && <Link to="/artist-dashboard">Artist</Link>}
       </div>
     </header>
   );
